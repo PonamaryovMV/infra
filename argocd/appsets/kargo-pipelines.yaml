@@ -1,0 +1,44 @@
+# Kargo-пайплайн каждого приложения: apps/<app>/kargo/ → Application kargo-<app>.
+# Project создаёт неймспейс <app>, остальные ресурсы ложатся в него.
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: kargo-pipelines
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - git:
+        repoURL: https://github.com/PonamaryovMV/gitops-main.git
+        revision: main
+        directories:
+          - path: apps/*/kargo
+  template:
+    metadata:
+      name: "kargo-{{ index .path.segments 1 }}"
+      labels:
+        stand/layer: kargo
+        stand/app: "{{ index .path.segments 1 }}"
+    spec:
+      project: kargo
+      source:
+        repoURL: https://github.com/PonamaryovMV/gitops-main.git
+        targetRevision: main
+        path: "{{ .path.path }}"
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: "{{ index .path.segments 1 }}"
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          # CRD Kargo может ещё не быть — не валим dry-run, ждём через retry
+          - SkipDryRunOnMissingResource=true
+          - ServerSideApply=true
+        retry:
+          limit: -1
+          backoff:
+            duration: 15s
+            factor: 2
+            maxDuration: 2m

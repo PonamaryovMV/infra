@@ -1,0 +1,45 @@
+# Приложения из gitops-main: apps/<app>/envs/<env>/ → Application <app>-<env> в неймспейсе <env>.
+# Аннотация authorized-stage разрешает Kargo-стейджу <env> проекта <app> синкать этот Application.
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: workloads
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - git:
+        repoURL: https://github.com/PonamaryovMV/gitops-main.git
+        revision: main
+        directories:
+          - path: apps/*/envs/*
+  template:
+    metadata:
+      name: "{{ index .path.segments 1 }}-{{ .path.basename }}"
+      labels:
+        stand/layer: workloads
+        stand/app: "{{ index .path.segments 1 }}"
+        stand/env: "{{ .path.basename }}"
+      annotations:
+        kargo.akuity.io/authorized-stage: "{{ index .path.segments 1 }}:{{ .path.basename }}"
+    spec:
+      project: workloads
+      source:
+        repoURL: https://github.com/PonamaryovMV/gitops-main.git
+        targetRevision: main
+        path: "{{ .path.path }}"
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: "{{ .path.basename }}"
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+        retry:
+          limit: 5
+          backoff:
+            duration: 10s
+            factor: 2
+            maxDuration: 1m

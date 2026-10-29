@@ -1,0 +1,20 @@
+# Argo CD управляет сам собой и всеми ApplicationSet из этой папки.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argocd
+spec:
+  project: platform
+  source:
+    repoURL: https://github.com/PonamaryovMV/infra.git
+    targetRevision: main
+    path: argocd
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: false   # случайно не снести сам Argo CD
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true  # CRD Argo CD слишком большие для client-side apply

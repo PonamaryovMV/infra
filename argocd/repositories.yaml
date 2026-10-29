@@ -1,0 +1,13 @@
+# Helm-чарт Kargo публикуется только как OCI — Argo CD нужно явно включить enableOCI.
+# Публичный репозиторий, учётные данные не нужны.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: repo-kargo-charts
+  labels:
+    argocd.argoproj.io/secret-type: repository
+stringData:
+  name: kargo-charts
+  type: helm
+  url: ghcr.io/akuity/kargo-charts
+  enableOCI: "true"

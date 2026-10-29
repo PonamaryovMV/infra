@@ -1,0 +1,33 @@
+# UI-расширение Argo Rollouts: вкладка с шагами canary прямо в Argo CD.
+# rollout-extension v0.4.x требует Argo CD >= 3.5.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: argocd-server
+spec:
+  template:
+    spec:
+      initContainers:
+        - name: rollout-extension
+          image: quay.io/argoprojlabs/argocd-extension-installer:v1.1.0
+          env:
+            - name: EXTENSION_NAME
+              value: rollout
+            - name: EXTENSION_VERSION
+              value: v0.4.1
+            - name: EXTENSION_URL
+              value: https://github.com/argoproj-labs/rollout-extension/releases/download/v0.4.1/extension.tar
+          volumeMounts:
+            - name: extensions
+              mountPath: /tmp/extensions/
+          securityContext:
+            runAsUser: 1000
+            allowPrivilegeEscalation: false
+      containers:
+        - name: argocd-server
+          volumeMounts:
+            - name: extensions
+              mountPath: /tmp/extensions/
+      volumes:
+        - name: extensions
+          emptyDir: {}

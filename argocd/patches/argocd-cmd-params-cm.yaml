@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-cmd-params-cm
+data:
+  # TLS не нужен: UI открывается по http://localhost:8080 через NodePort kind
+  server.insecure: "true"

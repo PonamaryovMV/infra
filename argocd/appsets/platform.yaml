@@ -1,0 +1,51 @@
+# Платформа из gitops-infra: каждая папка components/<name>/ c component.yaml
+# превращается в Application <name> = Helm-чарт + values.yaml из той же папки.
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: platform
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - git:
+        repoURL: https://github.com/PonamaryovMV/gitops-infra.git
+        revision: main
+        files:
+          - path: components/*/component.yaml
+  template:
+    metadata:
+      name: "{{ .path.basename }}"
+      labels:
+        stand/layer: platform
+    spec:
+      project: platform
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: "{{ .namespace }}"
+      sources:
+        - repoURL: "{{ .chart.repoURL }}"
+          chart: "{{ .chart.name }}"
+          targetRevision: "{{ .chart.version }}"
+          helm:
+            releaseName: "{{ .path.basename }}"
+            valueFiles:
+              - $values/{{ .path.path }}/values.yaml
+        - repoURL: https://github.com/PonamaryovMV/gitops-infra.git
+          targetRevision: main
+          ref: values
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - ServerSideApply=true
+        # Порядка между Application нет: Kargo ждёт CRD cert-manager и Rollouts
+        # и просто ретраится, пока они не появятся.
+        retry:
+          limit: -1
+          backoff:
+            duration: 10s
+            factor: 2
+            maxDuration: 2m

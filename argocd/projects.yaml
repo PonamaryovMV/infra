@@ -1,0 +1,51 @@
+# Платформа: Argo CD, cert-manager, Argo Rollouts, Kargo — без ограничений
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: platform
+spec:
+  description: Платформенные компоненты стенда
+  sourceRepos:
+    - "*"
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: "*"
+  clusterResourceWhitelist:
+    - group: "*"
+      kind: "*"
+---
+# Приложения: только gitops-main и только неймспейсы окружений
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: workloads
+spec:
+  description: Тестовые приложения (dev / stage / prod)
+  sourceRepos:
+    - https://github.com/PonamaryovMV/gitops-main.git
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: dev
+    - server: https://kubernetes.default.svc
+      namespace: stage
+    - server: https://kubernetes.default.svc
+      namespace: prod
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+---
+# Kargo-пайплайны приложений: Project (cluster-scoped) + ресурсы в неймспейсе проекта
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: kargo
+spec:
+  description: Kargo Project / Warehouse / Stage для приложений из gitops-main
+  sourceRepos:
+    - https://github.com/PonamaryovMV/gitops-main.git
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: "*"
+  clusterResourceWhitelist:
+    - group: kargo.akuity.io
+      kind: Project
