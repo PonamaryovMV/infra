@@ -3,6 +3,6 @@ kind: ConfigMap
 metadata:
   name: argocd-cm
 data:
-  url: http://localhost:8080
+  url: http://argocd
   # Стенд: чаще опрашиваем git, чтобы коммиты Kargo подхватывались быстрее (по умолчанию 120s)
   timeout.reconciliation: 30s

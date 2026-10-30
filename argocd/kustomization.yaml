@@ -2,7 +2,7 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 # Argo CD управляет сам собой: Application "argocd" (argocd-self.yaml) смотрит в эту же папку.
-# Первичная установка — scripts/up.sh (kubectl apply --server-side -k).
+# Первичная установка — scripts/windows/up.ps1 (kubectl apply --server-side -k).
 namespace: argocd
 
 resources:
@@ -11,12 +11,13 @@ resources:
   - projects.yaml
   - repositories.yaml
   - argocd-self.yaml
+  - ingress.yaml
   - appsets/platform.yaml
   - appsets/workloads.yaml
+  - appsets/workloads-prod.yaml
   - appsets/kargo-pipelines.yaml
 
 patches:
   - path: patches/argocd-cmd-params-cm.yaml
   - path: patches/argocd-cm.yaml
-  - path: patches/argocd-server-service.yaml
   - path: patches/argocd-server-rollout-extension.yaml

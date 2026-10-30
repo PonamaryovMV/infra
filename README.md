@@ -1,22 +1,23 @@
 # infra — Argo CD стенда
 
 Argo CD **v3.6.0-rc4**, установленный из upstream-манифеста через kustomize и управляющий сам собой.
-Первичную установку делает [`scripts/up.sh`](https://github.com/PonamaryovMV/scripts), дальше всё меняется коммитами сюда.
+Первичную установку делает [`scripts/windows/up.ps1`](https://github.com/PonamaryovMV/scripts), дальше всё меняется коммитами сюда.
 
 ```
 argocd/
 ├── kustomization.yaml        # install.yaml нужной версии + патчи + всё ниже
 ├── argocd-self.yaml          # Application "argocd" → эта папка (self-management)
+├── ingress.yaml              # http://argocd через Traefik
 ├── projects.yaml             # AppProject: platform, workloads, kargo
-├── repositories.yaml         # OCI-репозиторий чартов Kargo (enableOCI)
+├── repositories.yaml         # OCI-репозитории чартов: Kargo и общий чарт main
 ├── appsets/
 │   ├── platform.yaml         # gitops-infra/components/*/component.yaml → Helm-чарт + values
-│   ├── workloads.yaml        # gitops-main/apps/*/envs/*              → <app>-<env> в ns <env>
-│   └── kargo-pipelines.yaml  # gitops-main/apps/*/kargo               → kargo-<app>
+│   ├── workloads.yaml        # gitops-main/<АС>/<ФП>/<сервис>/<окр>  → <АС>-<ФП>-<сервис>-<окр> (Helm: values + release.yaml)
+│   ├── workloads-prod.yaml   # gitops-prod/<АС>/<ФП>/<сервис>/prod  → <АС>-<ФП>-<сервис>-prod
+│   └── kargo-pipelines.yaml  # gitops-main/kargo/<проект>           → kargo-<проект>
 └── patches/
     ├── argocd-cmd-params-cm.yaml          # server.insecure (UI по http)
-    ├── argocd-cm.yaml                     # url, опрос git раз в 30с
-    ├── argocd-server-service.yaml         # NodePort 30080 → http://localhost:8080
+    ├── argocd-cm.yaml                     # url http://argocd, опрос git раз в 30с
     └── argocd-server-rollout-extension.yaml  # UI Argo Rollouts внутри Argo CD
 ```
 
@@ -31,5 +32,5 @@ argocd/
 - У `argocd` выключен `prune` — чтобы ошибка в kustomization не снесла сам Argo CD.
 - Между Application платформы нет порядка (Kargo нужны CRD cert-manager). Вместо sync-wave — бесконечный `retry`:
   Kargo просто досинкается, когда появятся CRD.
-- Аннотация `kargo.akuity.io/authorized-stage: <app>:<env>` на Application из `workloads` разрешает
-  соответствующему Kargo-стейджу синкать его (`argocd-update`).
+- Аннотация `kargo.akuity.io/authorized-stage: <АС>-<ФП>:<окружение>` на Application'ах из `workloads` и `workloads-prod`
+  разрешает соответствующему Kargo-стейджу синкать их (`argocd-update`).

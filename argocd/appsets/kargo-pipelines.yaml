@@ -1,5 +1,4 @@
-# Kargo-пайплайн каждого приложения: apps/<app>/kargo/ → Application kargo-<app>.
-# Project создаёт неймспейс <app>, остальные ресурсы ложатся в него.
+# Kargo-проекты ФП: gitops-main/kargo/<проект>/ → Application kargo-<проект> (Project, Warehouse, Stages, задачи, DAST).
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
@@ -12,13 +11,12 @@ spec:
         repoURL: https://github.com/PonamaryovMV/gitops-main.git
         revision: main
         directories:
-          - path: apps/*/kargo
+          - path: kargo/*
   template:
     metadata:
-      name: "kargo-{{ index .path.segments 1 }}"
+      name: "kargo-{{ .path.basename }}"
       labels:
         stand/layer: kargo
-        stand/app: "{{ index .path.segments 1 }}"
     spec:
       project: kargo
       source:
@@ -27,7 +25,7 @@ spec:
         path: "{{ .path.path }}"
       destination:
         server: https://kubernetes.default.svc
-        namespace: "{{ index .path.segments 1 }}"
+        namespace: "{{ .path.basename }}"
       syncPolicy:
         automated:
           prune: true

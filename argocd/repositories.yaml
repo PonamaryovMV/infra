@@ -11,3 +11,16 @@ stringData:
   type: helm
   url: ghcr.io/akuity/kargo-charts
   enableOCI: "true"
+---
+# Общий чарт main (зависимость Chart.yaml сервисов) — OCI в ghcr, публикует gitops-infra/.github/workflows/publish-chart.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: repo-stand-charts
+  labels:
+    argocd.argoproj.io/secret-type: repository
+stringData:
+  name: stand-charts
+  type: helm
+  url: ghcr.io/ponamaryovmv/charts
+  enableOCI: "true"

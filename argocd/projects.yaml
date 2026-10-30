@@ -14,22 +14,19 @@ spec:
     - group: "*"
       kind: "*"
 ---
-# Приложения: только gitops-main и только неймспейсы окружений
+# Приложения ФП: gitops-main (dev, test, uat) и gitops-prod (prod), неймспейсы <АС>-<ФП>-<окружение>
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
   name: workloads
 spec:
-  description: Тестовые приложения (dev / stage / prod)
+  description: Сервисы ФП (qa/at/<сервис>/<окружение>)
   sourceRepos:
     - https://github.com/PonamaryovMV/gitops-main.git
+    - https://github.com/PonamaryovMV/gitops-prod.git
   destinations:
     - server: https://kubernetes.default.svc
-      namespace: dev
-    - server: https://kubernetes.default.svc
-      namespace: stage
-    - server: https://kubernetes.default.svc
-      namespace: prod
+      namespace: "qa-*"
   clusterResourceWhitelist:
     - group: ""
       kind: Namespace
@@ -40,7 +37,7 @@ kind: AppProject
 metadata:
   name: kargo
 spec:
-  description: Kargo Project / Warehouse / Stage для приложений из gitops-main
+  description: Kargo Project / Warehouse / Stage для ФП из gitops-main (kargo/<проект>)
   sourceRepos:
     - https://github.com/PonamaryovMV/gitops-main.git
   destinations:

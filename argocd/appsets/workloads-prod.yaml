@@ -1,0 +1,52 @@
+# Сервисы ФП из gitops-prod: <АС>/<ФП>/<сервис>/<окружение>/ → Application <АС>-<ФП>-<сервис>-<окружение>.
+# Helm: Chart.yaml (зависимость main) + values <АС>-<ФП>-<сервис>-<окружение>.yaml + release.yaml (тег).
+# Аннотация authorized-stage разрешает Kargo-стейджу <окружение> проекта <АС>-<ФП> синкать Application.
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: workloads-prod
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - git:
+        repoURL: https://github.com/PonamaryovMV/gitops-prod.git
+        revision: main
+        directories:
+          - path: "*/*/*/*"
+  template:
+    metadata:
+      name: "{{ index .path.segments 0 }}-{{ index .path.segments 1 }}-{{ index .path.segments 2 }}-{{ .path.basename }}"
+      labels:
+        stand/layer: workloads
+        stand/fp: "{{ index .path.segments 0 }}-{{ index .path.segments 1 }}"
+        stand/service: "{{ index .path.segments 2 }}"
+        stand/env: "{{ .path.basename }}"
+      annotations:
+        kargo.akuity.io/authorized-stage: "{{ index .path.segments 0 }}-{{ index .path.segments 1 }}:{{ .path.basename }}"
+    spec:
+      project: workloads
+      source:
+        repoURL: https://github.com/PonamaryovMV/gitops-prod.git
+        targetRevision: main
+        path: "{{ .path.path }}"
+        helm:
+          releaseName: "{{ index .path.segments 0 }}-{{ index .path.segments 1 }}-{{ index .path.segments 2 }}"
+          valueFiles:
+            - "{{ index .path.segments 0 }}-{{ index .path.segments 1 }}-{{ index .path.segments 2 }}-{{ .path.basename }}.yaml"
+            - release.yaml
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: "{{ index .path.segments 0 }}-{{ index .path.segments 1 }}-{{ .path.basename }}"
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+        retry:
+          limit: 5
+          backoff:
+            duration: 10s
+            factor: 2
+            maxDuration: 1m
