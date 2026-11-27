@@ -47,9 +47,9 @@ data:
 
     img.sidebar__logo__character {
       content: url("./logo.png") !important;
-      width: 44px !important;
+      width: 90px !important;
       height: auto !important;
-      max-height: 90px !important;
+      max-height: 160px !important;
       object-fit: contain !important;
     }
 binaryData:
