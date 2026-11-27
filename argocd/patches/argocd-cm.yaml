@@ -6,3 +6,8 @@ data:
   url: http://argocd
   # Стенд: чаще опрашиваем git, чтобы коммиты Kargo подхватывались быстрее (по умолчанию 120s)
   timeout.reconciliation: 30s
+  # Визуальное выделение тестового стенда (см. styles-cm.yaml)
+  ui.cssurl: ./custom/custom.css
+  ui.bannercontent: TEST ENVIRONMENT
+  ui.bannerpermanent: "true"
+  ui.bannerposition: top

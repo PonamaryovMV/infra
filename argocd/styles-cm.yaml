@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-styles-cm
+data:
+  custom.css: |
+    /* Тема для тестового стенда Argo CD (Изумруд) */
+    .ui-banner {
+      background-color: #0f766e !important;
+      color: #f0fdfa !important;
+      font-weight: 600 !important;
+    }
+
+    .sidebar {
+      background: linear-gradient(to bottom, #134e4a, #0d3b38) !important;
+    }
+
+    .sidebar__logo {
+      position: relative;
+    }
+
+    .sidebar__logo::after {
+      content: "TEST";
+      display: block;
+      margin: 4px auto 0;
+      padding: 1px 6px;
+      width: fit-content;
+      border-radius: 4px;
+      background-color: #14b8a6;
+      color: #042f2e;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+
+    .top-bar {
+      background-color: #f0fdfa !important;
+      border-bottom: 1px solid #99f6e4 !important;
+    }
+
+    .top-bar__title {
+      color: #134e4a !important;
+    }
