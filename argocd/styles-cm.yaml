@@ -4,7 +4,7 @@ metadata:
   name: argocd-styles-cm
 data:
   custom.css: |
-    /* РўРµРјР° РґР»СЏ С‚РµСЃС‚РѕРІРѕРіРѕ СЃС‚РµРЅРґР° Argo CD (РР·СѓРјСЂСѓРґ) */
+    /* Тема для тестового стенда Argo CD (Изумруд) */
     .ui-banner {
       background-color: #0f766e !important;
       color: #f0fdfa !important;
