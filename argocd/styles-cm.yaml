@@ -17,6 +17,7 @@ data:
 
     .sidebar__logo {
       position: relative;
+      flex-wrap: wrap !important;
     }
 
     .sidebar__logo::after {
@@ -31,6 +32,8 @@ data:
       font-size: 10px;
       font-weight: 700;
       letter-spacing: 0.08em;
+      flex-basis: 100%;
+      text-align: center;
     }
 
     .top-bar {
@@ -43,7 +46,7 @@ data:
     }
 
     img.sidebar__logo__character {
-      content: url("./custom/logo.png") !important;
+      content: url("./logo.png") !important;
       width: 44px !important;
       height: auto !important;
       max-height: 90px !important;
