@@ -21,5 +21,5 @@ resources:
 patches:
   - path: patches/argocd-cmd-params-cm.yaml
   - path: patches/argocd-cm.yaml
-  - path: patches/argocd-server-rollout-extension.yaml
+  # - path: patches/argocd-server-rollout-extension.yaml
   - path: patches/argocd-server-custom-styles.yaml
